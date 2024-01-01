@@ -1,24 +1,32 @@
 import logo from './logo.svg';
 import './App.css';
 import { useSelector, useDispatch } from 'react-redux';
-import { increment, decrement } from './redux/slices/counterSlice';
+// import { increment, decrement } from './redux/slices/counterSlice';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { fetchAllUsers } from './redux/slices/userSlice';
 
 function App() {
   const dispatch = useDispatch();
-  const count = useSelector((state) => state.counter.value);
 
-  const [listUsers, setListusers] = useState([]);
+  const listUsers = useSelector((state) => state.user.listUsers)
+  const isLoading = useSelector((state) => state.user.isLoading)
+  const isError = useSelector((state) => state.user.isError)
 
   useEffect(() => {
-    fetchAllUsers();
+    dispatch(fetchAllUsers());
   }, [])
 
-  const fetchAllUsers = async () => {
-    let res = await axios.get("http://localhost:8080/users/all");
-    setListusers(res.data ? res.data : [])
-    console.log(res.data);
+  if (isError === true && isLoading === false) {
+    return (
+      <div>Something wrongs, please try again!</div>
+    )
+  }
+
+  if (isError === false && isLoading === true) {
+    return (
+      <div>Loading data...</div>
+    )
   }
 
   return (
