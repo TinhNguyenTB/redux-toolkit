@@ -9,10 +9,21 @@ export const fetchAllUsers = createAsyncThunk(
     }
 )
 
+export const createNewUser = createAsyncThunk(
+    'users/createNewUser',
+    async (email, password, username) => {
+        let res = await axios.post("http://localhost:8080/users/create", { email, password, username });
+        if (res && res.data.errCode === 0) {
+            fetchAllUsers()
+        }
+    }
+)
+
 const initialState = {
     listUsers: [],
     isLoading: false,
-    isError: false
+    isError: false,
+    isCreating: false
 }
 
 export const userSlice = createSlice({
@@ -36,6 +47,15 @@ export const userSlice = createSlice({
             .addCase(fetchAllUsers.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
+            })
+            .addCase(createNewUser.pending, (state, action) => {
+                state.isCreating = true
+            })
+            .addCase(createNewUser.fulfilled, (state, action) => {
+                state.isCreating = false
+            })
+            .addCase(createNewUser.rejected, (state, action) => {
+                state.isCreating = false
             })
     },
 })
